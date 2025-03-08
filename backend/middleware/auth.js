@@ -7,7 +7,7 @@ const User = require('../models/User')
 
 //Authentican Middleware
 
-const authMiddleware = async (req,resizeBy,next){
+const authMiddleware = async (req,resizeBy,next) => {
     try {
 
       const token = req.header('Authorization')?.replace('Bearer','') 
