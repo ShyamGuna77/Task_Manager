@@ -12,21 +12,24 @@ router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    //check if user exists or not
-
+  
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists " });
     }
 
+    
     const user = new User({
       username,
       email,
       password,
     });
 
+    // save the user to the database
     await user.save();
+
+    // generate a JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -48,11 +51,13 @@ router.post("/register", async (req, res) => {
 
 //Login route
 
-router.post('./login',async(req,res) => {
+router.post('/login',async(req,res) => {
     try {
         
         const {email,password} = req.body;
+        console.log("Login attempt email",email)
         const user = await User.findOne({email});
+          console.log("User found:", user ? "Yes" : "No");
 
         if(!user){
             return res.status(401).json({message:"Inavalid Credintials"})
@@ -61,6 +66,7 @@ router.post('./login',async(req,res) => {
         // use comparePassword that created in user model
              
         const isMatch = await user.comparePassword(password);
+         console.log("Password match:", isMatch);
          if (!isMatch) {
            return res.status(401).json({ message: "Invalid credentials" });
          }
@@ -85,7 +91,7 @@ router.post('./login',async(req,res) => {
 
 // get the user route 
 
-router.get('./me',auth,async (req,res)=>{
+router.get('/me',auth,async (req,res)=>{
        try {
         res.json({
             user:{
